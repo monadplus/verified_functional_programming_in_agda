@@ -4,6 +4,7 @@ open import bool
 open import eq
 open import sum
 
+
 -- ~ ~ tt ≡ tt
 -- >>> ,t
 -- Set
@@ -79,19 +80,31 @@ test-&&-idem = &&-idem -- &&-idem{tt} in case it could not be infered.
 -- ||-cong₁ {b1}{b1'}{b2} refl = refl -- ko
 -- ||-cong₁ {b1}{.b1}{b2} refl = refl -- ok (the term is not a subpattern to match).
 
+-- goal: formula whih we have to prove on the rhs.
+
+-- another approach: rewrite
 ||-cong₂ : ∀ {b1 b2 b2'} → b2 ≡ b2' → b1 || b2 ≡ b1 || b2'
 ||-cong₂ p rewrite p = refl
+-- rewrite: replace every occurence of the rewrite p of the lhs with the rhs.
+--          In this example: b2 by b2' so the goal becomes b1 || b2' ≡ b1 || b2' which is trivial.
+
+-- The rewrite p instructs the Agda type checker to look in the goal for any occurences of X, and transform those into Y.
+--
+-- X and Y ould be complex expressions; they do not have to be just variables.
 
 ite-same : ∀{ℓ}{A : Set ℓ} →
            ∀(b : 𝔹) (x : A) →
            (if b then x else x) ≡ x
-ite-same tt x = refl
-ite-same ff x = refl
+ite-same tt x = refl -- ∀ (x : A) → x ≡ x
+ite-same ff x = refl -- ∀ (x : A) → x ≡ x
 
 ite-arg : ∀{ℓ ℓ'}{A : Set ℓ}{B : Set ℓ'} → (f : A → B)(b : 𝔹)(x y : A) → (f (if b then x else y)) ≡ (if b then f x else f y)
 ite-arg f tt x y = refl
 ite-arg f ff x y = refl
 
+-- absurd assumption, absurd pattern.
+--
+-- If ff ≡ tt, then the universal formula is true (but we know this is false, otherwise all formulas are true)
 𝔹-contra : ff ≡ tt → ∀{ℓ} {P : Set ℓ} → P
 𝔹-contra ()
 
@@ -120,3 +133,18 @@ ite-arg f ff x y = refl
 &&-ff : ∀(b : 𝔹) → b && ff ≡ ff
 &&-ff tt = refl
 &&-ff ff = refl
+
+-------------------------------------------------------
+-------------------------------------------------------
+
+-- Exercises
+
+-- 1
+||-combo : {p1 p2 : 𝔹} → p1 ≡ ff → p2 ≡ ff → p1 || p2 ≡ ff
+||-combo{ff} pr1 pr2 = pr2
+||-combo{tt} () -- ||-combo{tt} pr1 pr2 = 𝔹-contra (sym pr1)
+
+-- 2
+deMorgan : ∀ {b₁ b₂} → ~ (b₁ || b₂) ≡ ~ b₁ && ~ b₂
+deMorgan{tt} = refl
+deMorgan{ff} = refl
