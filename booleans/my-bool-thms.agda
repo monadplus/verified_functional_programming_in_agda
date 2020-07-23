@@ -36,9 +36,32 @@ test-&&-idem = &&-idem -- &&-idem{tt} in case it could not be infered.
 ||-idem{tt} = refl
 ||-idem{ff} = refl
 
+-- Under the Curry-Howard isomorphism, to express an assumption, we write a function that takes in a proof of that assumption, and then produces the proof of the desired result.
+--
+-- Assumption = b1 || b2 ≡ ff
+-- Desired result = b1 ≡ ff
+--
+-- absurd pattern ()
+--
+--    We can use it because the assumption is impossible :: tt || b2 ≡ ff  definitionally equal to tt ≡ ff
+--    "quit early" when we have an abviously impossible assumption.
+--    No need to proof this case.
+--
 ||≡ff₁ : ∀ {b1 b2} → b1 || b2 ≡ ff → ff ≡ b1
-||≡ff₁ {ff} p = refl
-||≡ff₁ {tt} p = sym p
+||≡ff₁ {ff} p = refl -- p : proof for assumption
+                     -- refl because if b1 ≡ ff then the result is b1 itself.
+                     -- refl to proof the trivial equation ff ≡ ff
+||≡ff₁ {tt} p = sym p -- ||≡ff₁ {tt} ()
+                      -- ||≡ff₁ {tt} p = p -- You need to change ff ≡ b1 to b1 ≡ ff
+                      --                   -- this is why we used sym p (sym means symmetry)
+                      --                   -- sym takes x ≡ y and returns y ≡ x
+-- ^^^ ∀ {b2} → tt || b2 ≡ ff → tt ≡ ff
+
+-- ||≡ff₁ : ∀ {b1 b2} → b1 || b2 ≡ ff → ff ≡ b1
+-- ||≡ff₁ refl = refl
+-- Type refinements doesn't work on non-variable types.
+-- Agda can't conclude that b1 || b2 is definitionally equal to ff.
+
 
 ||≡ff₂ : ∀ {b1 b2} → b1 || b2 ≡ ff → b2 ≡ ff
 ||≡ff₂ {tt} ()
@@ -50,7 +73,11 @@ test-&&-idem = &&-idem -- &&-idem{tt} in case it could not be infered.
 ||-tt ff = refl
 
 ||-cong₁ : ∀ {b1 b1' b2} → b1 ≡ b1' → b1 || b2 ≡ b1' || b2
-||-cong₁ refl = refl
+||-cong₁ refl = refl -- After assumption, (b1 || b2) ≡ (b1 || b2) is trivial
+
+-- ||-cong₁ : ∀ {b1 b1' b2} → b1 ≡ b1' → b1 || b2 ≡ b1' || b2
+-- ||-cong₁ {b1}{b1'}{b2} refl = refl -- ko
+-- ||-cong₁ {b1}{.b1}{b2} refl = refl -- ok (the term is not a subpattern to match).
 
 ||-cong₂ : ∀ {b1 b2 b2'} → b2 ≡ b2' → b1 || b2 ≡ b1 || b2'
 ||-cong₂ p rewrite p = refl
