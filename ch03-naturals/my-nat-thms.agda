@@ -63,7 +63,8 @@ open import sum
 +comm : ∀ (x y : ℕ) → x + y ≡ y + x
 +comm zero y rewrite +0 y = refl -- Goal: y ≡ y + 0
 +comm (suc x) y rewrite +comm x y | +suc y x = refl
--- Goal: suc (x + y) ≡ y + suc x
+-- Goal: suc x + y ≡ y + suc x
+--       suc (x + y) ≡ y + suc x -- apply _+_
 --       suc (y + x) ≡ y + suc x -- +comm x y
 --       y + suc x ≡ suc (y + x) -- (implicit) sym
 --       relf                    -- +suc y x (order matters!)
@@ -99,6 +100,9 @@ open import sum
 *distribr : ∀ (x y z : ℕ) → (x + y) * z ≡ x * z + y * z
 *distribr zero y z = refl
 *distribr (suc x) y z rewrite *distribr x y z = +assoc z (x * z) (y * z)
+-- z + ((x + y) * z) ≡ (z + x * z) + y * z
+-- z + (x * z + y * z) ≡ (z + x * z) + y * z -- *distribr
+-- (z + x * z) + y * z) ≡ (z + x * z) + y * z -- +assoc
 
 *distribl : ∀ (x y z : ℕ) → x * (y + z) ≡ x * y + x * z
 *distribl 0 y z = refl
@@ -110,11 +114,16 @@ open import sum
 
 *assoc : ∀ (x y z : ℕ) → x * (y * z) ≡ (x * y) * z
 *assoc zero y z = refl
-*assoc (suc x) y z rewrite *assoc x y z | *distribr y (x * y) z = refl
+*assoc (suc x) y z rewrite *assoc x y z | *distribr  y (x * y) z = refl
+-- y * z + x * (y * z) ≡ (y + x * y) * z -- Goal
+-- y * z + x * y * z ≡ (y + x * y) * z   -- *assoc
+-- (y + x * y) * z                       -- *distribr on x * z + y * z ≡ (x + y) * z
+--                                              where x = y, y = (x + y), z = z
 
 --------------------------------------------------
 -- basic properties of pred
 --------------------------------------------------
+
 
 sucpred : ∀ {x : ℕ} → iszero x ≡ ff → suc (pred x) ≡ x
 sucpred{0} ()
@@ -282,12 +291,33 @@ iszeromult (suc x) (suc y) p q = refl
 <-insert2{x}{n}{m} p | inj₂ (inj₁ p') | p1 , p2 = inj₂ (inj₁ (p1 , p2))
 <-insert2{x}{n}{m} p | inj₂ (inj₂ p') = inj₂ (inj₂ p')
 
+-- 𝔹-contra : ff ≡ tt → ∀{ℓ} {P : Set ℓ} → P
+-- 𝔹-contra ()
+
+-- Can't use ∀ {x y z : ℕ} → x < y  → y < z → x < z
+-- Because it returns a 𝔹 and 𝔹 cannot be used as a type, we need to return Set.
+-- One cannot pattern-match on Set.
 <-trans : ∀ {x y z : ℕ} → x < y ≡ tt → y < z ≡ tt → x < z ≡ tt
-<-trans {x} {0} p1 p2 rewrite <-0 x = 𝔹-contra p1
-<-trans {0} {suc y} {0} p1 ()
-<-trans {0} {suc y} {suc z} p1 p2 = refl
+<-trans {x} {0} p1 p2 rewrite <-0 x = 𝔹-contra p1 -- 1)
+<-trans {0} {suc y} {0} p1 () -- 2)
+<-trans {0} {suc y} {suc z} p1 p2 = refl -- 3)
 <-trans {suc x} {suc y} {0} p1 ()
 <-trans {suc x} {suc y} {suc z} p1 p2 = <-trans {x} {y} {z} p1 p2
+-- 1) the compiler is not clever enough to show x < 0 ≡ tt so we need to rewrite using <-0 proof
+--    𝔹-contra p1 because we can't use absurd pattern after rewrite.
+--
+-- 2) suc y < 0 ≡ tt which is equal to ff ≡ tt which is absurd.
+--
+-- 3) We know:
+--    - suc x < suc y ≡ tt
+--    - suc y < suc z ≡ tt
+--but we know by _<_ definition that they are equivalent to:
+--    - x < y ≡ tt
+--    - y < z ≡ tt
+-- And so we can apply again our inductive proof. QED
+
+
+{-
 
 <≤-trans : ∀ {x y z : ℕ} → x < y ≡ tt → y ≤ z ≡ tt → x < z ≡ tt
 <≤-trans {x} {y} {z} p1 p2 with ||-split p2
@@ -665,3 +695,4 @@ even~odd zero = refl
 even~odd (suc x) = odd~even x
 odd~even zero = refl
 odd~even (suc x) = even~odd x
+-}
