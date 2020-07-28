@@ -137,6 +137,12 @@ pred+ (suc x) y p = refl
 -- properties of <, ≤, and =ℕ, iszero
 --------------------------------------------------
 
+-- Computationally equality (equality test) =ℕ
+--
+-- Not every type can have an equality test. For example, ℕ → ℕ, because such a test
+-- would have to be able to compare functions for definitional equality, and this seems
+-- impossible within the language.
+
 <-0 : ∀ (x : ℕ) → x < 0 ≡ ff
 <-0 0 = refl
 <-0 (suc y) = refl
@@ -165,6 +171,8 @@ pred+ (suc x) y p = refl
 
 =ℕ-from-≡ : ∀ {x y : ℕ} → x ≡ y → x =ℕ y ≡ tt
 =ℕ-from-≡ {x} refl = =ℕ-refl x
+-- ^^^ when we pattern match on 'x ≡ y'
+--       then the proof becomes x =ℕ x ≡ tt
 
 =ℕ-sym : ∀ (x y : ℕ) → (x =ℕ y) ≡ (y =ℕ x)
 =ℕ-sym 0 0 = refl
@@ -248,6 +256,55 @@ iszeromult (suc x) (suc y) p q = refl
 ... | p' rewrite sym (+suc (d + q * suc (suc d)) r) | +comm d (q * suc (suc d))
                | sym (+assoc (q * (suc (suc d))) d (suc r)) = ÷<{suc (suc d)}{q}{d + suc r}{x} refl p'
 
+
+--------------------------------------------------
+-- Exercises
+--------------------------------------------------
+
+-- 1.-
+
+=ℕ-sym-1 : ∀ (x y : ℕ) → (x =ℕ y) ≡ (y =ℕ x)
+=ℕ-sym-1 0 0 = refl
+=ℕ-sym-1 0 (suc y) = refl
+=ℕ-sym-1 (suc x) 0 = refl
+=ℕ-sym-1 (suc x) (suc y) = =ℕ-sym-1 x y
+
+≤+1-1 : ∀(x y : ℕ) → x ≤ x + y ≡ tt
+≤+1-1 zero zero = refl
+≤+1-1 zero (suc y) = refl
+≤+1-1 (suc x) zero rewrite +0 x | =ℕ-refl x | ||-tt (x < x) = refl
+-- Goal: x < x + 0 || x =ℕ x + 0 ≡ tt
+--       x < x || x =ℕ x ≡ tt
+--       x < x || tt ≡ tt
+--       tt ≡ tt
+≤+1-1 (suc x) (suc y) = ≤+1-1 x (suc y)
+-- Goal: x < x + suc y || x =ℕ x + suc y ≡ tt
+-- Notice, that the goal is different from what we pattern-matched (suc x is reduced to x).
+
+
+-- 2.- <-trans and <+ using _>_
+<-trans-1 : ∀ {x y z : ℕ} → x > y ≡ tt → y > z ≡ tt → x > z ≡ tt
+<-trans-1 {0} {y} p q rewrite <-0 y = 𝔹-contra p
+<-trans-1 {x} {0} {z} p q rewrite <-0 z = 𝔹-contra q
+<-trans-1 {suc x} {suc y} {0} p1 p2 = refl
+<-trans-1 {suc x} {suc y} {suc z} p1 p2 = <-trans-1 {x} {y} {z} p1 p2
+
+
+--<+ : ∀ {x y : ℕ} → y =ℕ 0 ≡ ff → x < y + x ≡ tt
+>+ : ∀ {x y : ℕ} → y =ℕ 0 ≡ ff → x > y + x ≡ ff
+>+ {y = 0} ()
+>+ {x}{suc 0} p = <-suc2 x
+>+ {x}{suc (suc y)} p = ? -- TODO
+-- Goal: suc (suc (y + x) < x ≡ ff
+
+--<+ : ∀ {x y : ℕ} → y =ℕ 0 ≡ ff → x < y + x ≡ tt
+--<+{y = 0} ()
+--<+{x}{suc 0} p = <-suc x
+--<+{x}{suc (suc y)} p = <-trans{x}{(suc y) + x}{suc ((suc y) + x)} (<+{x}{suc y} refl) (<-suc ((suc y) + x))
+
+-- 3.- (a) Computes factorial
+--     (b) Returns tt (boolean true) iff n is even
+
 --------------------------------------------------
 -- ordering properties of < and ≤ℕ
 --------------------------------------------------
@@ -315,7 +372,6 @@ iszeromult (suc x) (suc y) p q = refl
 --    - x < y ≡ tt
 --    - y < z ≡ tt
 -- And so we can apply again our inductive proof. QED
-
 
 {-
 
