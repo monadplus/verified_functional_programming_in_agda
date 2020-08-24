@@ -90,7 +90,7 @@ test-&&-idem = &&-idem -- &&-idem{tt} in case it could not be infered.
 
 -- The rewrite p instructs the Agda type checker to look in the goal for any occurences of X, and transform those into Y.
 --
--- X and Y ould be complex expressions; they do not have to be just variables.
+-- X and Y could be complex expressions; they do not have to be just variables.
 
 ite-same : ∀{ℓ}{A : Set ℓ} →
            ∀(b : 𝔹) (x : A) →

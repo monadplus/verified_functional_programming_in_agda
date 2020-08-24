@@ -1,6 +1,6 @@
 Constructive Logic vs Classic Logic
 
-Constructive Logic do not inclue the law of the excluded middle and double negation elimination, which are fundamental inference rules in classic logic.
+Constructive Logic do not include the law of the excluded middle and double negation elimination, which are fundamental inference rules in classic logic.
 
 (Law of excluded middle: for every formula F, F \/ neg F)
 

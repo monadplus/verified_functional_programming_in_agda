@@ -62,8 +62,9 @@ ff || b = b
 -- { } infer type and level
 -- If A := 𝔹, then ℓ is infered to level-0.
 --
--- >>> :n if tt then _&&_ else _||_
--- >>> :t if tt then 𝔹 else (𝔹 → 𝔹)
+-- >>> ,n if tt then _&&_ else _||_
+-- _&&_
+-- >>> ,t if tt then 𝔹 else (𝔹 → 𝔹)
 -- Set (≡ Set 0)
 if_then_else_ : ∀ {ℓ} {A : Set ℓ} → 𝔹 → A → A → A
 if tt then y else z = y

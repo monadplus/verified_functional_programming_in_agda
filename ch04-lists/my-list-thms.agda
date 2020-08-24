@@ -75,16 +75,18 @@ length-reverse-helper : ∀{ℓ}{A : Set ℓ}(h l : 𝕃 A) →
                       length (reverse-helper h l) ≡ length h + length l
 length-reverse-helper h [] rewrite +0 (length h) = refl
 -- length h ≡ length h + 0
-length-reverse-helper h (x :: xs) rewrite length-reverse-helper (x :: h) xs =
-  sym (+suc (length h) (length xs))
+length-reverse-helper h (x :: xs) rewrite length-reverse-helper (x :: h) xs = ?
+  -- sym (+suc (length h) (length xs))
 -- length (reverse-helper (x :: h) xs) ≡ length h + suc (length xs)
--- length h + length l ≡ length h + suc (length xs)                     (induction hypothesis)
--- suc (length h + length xs) ≡ length h + suc (length xs)
--- This is +suc and sym
+-- suc (length g + length xs) ≡ length h + suc (length xs)              (induction)
+-- length g + suc (length xs) ≡ length h + suc (length xs)              (+suc)
 
 length-reverse : ∀{ℓ}{A : Set ℓ}(l : 𝕃 A) → length (reverse l) ≡ length l
 length-reverse l = length-reverse-helper [] l
-
+-- length (reverse-helper [] l) ≡ length l
+-- length [] + length l ≡ length l            (length-reverse-helper)
+-- 0 + length l ≡ length l
+-- length l ≡ length l
 
 
 
@@ -156,7 +158,7 @@ filter-idem p (x :: l) | tt , p' rewrite p' | p' | filter-idem p l = refl
 -- If subsequent normalization steps (using definitional equality) produce that expression again,
 --  Agda will not instantiate it again.
 -- The keep/inspect idiom is a cute way around this.
--- Now p' : px ≡ tt
+-- Now p' : p x ≡ tt
 -- Agda will not actually instantitate p x in the goal when we do a keep.
 -- We have to apply an explicit rewrite p'
 -- Now the goal is:
@@ -178,19 +180,13 @@ length-filter p (x :: l) with p x
 --   ^^^ This is the normalized version of ≤
 -- So we can undo the process:
 --  length (if px then x :: filter p l else filter p l) ≤ suc (length l)
--- Evaluate with p x
---   The first case is trivial.
---   The second case
 length-filter p (x :: l) | tt rewrite length-filter p l = refl
--- length (x :: filter p l) ≤ suc (length l) ≡ tt
--- suc (length (filter p l)) ≤ suc (length l) ≡ tt
--- length (filter p l) ≤ length l ≡ tt   <-- rewrite here
 length-filter p (x :: l) | ff = ≤-trans{length (filter p l)} (length-filter p l) (≤-suc (length l))
 -- Goal: length (filter p l) ≤ suc (length l) ≡ tt
 --
 -- We have the theorems:
 --     - induction hypothesis: length (filter p l) ≤ length l ≡ tt
---     - ≤-suc: length l ≤ suc (length l) ≡ tt
+--     - ≤-suc: n ≤ suc n ≡ tt (length l ≤ suc (length l) ≡ tt)
 --
 -- The facts look like these x ≤ y and y ≤ z, where
 --  - x is length (filter p l)
@@ -200,7 +196,7 @@ length-filter p (x :: l) | ff = ≤-trans{length (filter p l)} (length-filter p 
 -- We need to apply ≤-trans : ∀ {x y z : ℕ} → x ≤ y ≡ tt → y ≤ z ≡ tt → x ≤ z ≡ tt
 --   with our theorems to get the goal.
 --
---You need to specify the implicit argument because Agda can infer the value for x.
+-- (!) You need to specify the implicit argument because Agda can infer the value for x.
 
 
 

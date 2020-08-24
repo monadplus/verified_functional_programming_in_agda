@@ -35,11 +35,8 @@ open import sum
 +suc : ∀ (x y : ℕ) → x + (suc y) ≡ suc(x + y)
 +suc zero y = refl
 +suc (suc x) y rewrite +suc x y = refl
--- Reasoning on the second goal:
---
 -- suc x + (suc y) ≡ suc (suc x + y)
 -- suc (x + suc y) ≡ suc (suc (x + y))
--- x + suc y ≡ suc (x + y) -- (proof by induction)
 
 -- Which variable should we do induction on?
 --
@@ -101,8 +98,8 @@ open import sum
 *distribr zero y z = refl
 *distribr (suc x) y z rewrite *distribr x y z = +assoc z (x * z) (y * z)
 -- z + ((x + y) * z) ≡ (z + x * z) + y * z
--- z + (x * z + y * z) ≡ (z + x * z) + y * z -- *distribr
--- (z + x * z) + y * z) ≡ (z + x * z) + y * z -- +assoc
+-- z + (x * z + y * z) ≡ (z + x * z) + y * z     (*distribr)
+-- (z + x * z) + y * z) ≡ (z + x * z) + y * z    (+assoc)
 
 *distribl : ∀ (x y z : ℕ) → x * (y + z) ≡ x * y + x * z
 *distribl 0 y z = refl
@@ -115,15 +112,13 @@ open import sum
 *assoc : ∀ (x y z : ℕ) → x * (y * z) ≡ (x * y) * z
 *assoc zero y z = refl
 *assoc (suc x) y z rewrite *assoc x y z | *distribr  y (x * y) z = refl
--- y * z + x * (y * z) ≡ (y + x * y) * z -- Goal
--- y * z + x * y * z ≡ (y + x * y) * z   -- *assoc
--- (y + x * y) * z                       -- *distribr on x * z + y * z ≡ (x + y) * z
---                                              where x = y, y = (x + y), z = z
+-- y * z + x * (y * z) ≡ (y + x * y) * z
+-- y * z + x * y * z ≡ (y + x * y) * z     (*assoc)
+-- (y + x * y) * z                         (*distribr)
 
 --------------------------------------------------
 -- basic properties of pred
 --------------------------------------------------
-
 
 sucpred : ∀ {x : ℕ} → iszero x ≡ ff → suc (pred x) ≡ x
 sucpred{0} ()
