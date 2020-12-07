@@ -1,0 +1,1 @@
+../../ial/minmax.agda

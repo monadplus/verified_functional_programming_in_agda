@@ -1,0 +1,1 @@
+../../ial/trie-thms.agda

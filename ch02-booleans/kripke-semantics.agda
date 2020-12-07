@@ -1,0 +1,1 @@
+../../ial/kripke-semantics.agda

@@ -1,0 +1,1 @@
+../../ial/thms.agda
